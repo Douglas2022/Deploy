@@ -23,6 +23,10 @@ def connectorBanco():
     )
     return conexao
 
+# @app.route('')
+# def home():
+#     return render_template('index.html')
+
 
 @app.route('/',methods=['GET','POST'])
 def index():
@@ -31,6 +35,24 @@ def index():
         email = request.form.get('email')
         senha = request.form.get('senha')
         print(f'Email:{email},senha:{senha}')
+        conexao = connectorBanco()
+        cursor = conexao.cursor(dictionary=True)
+        sql = f'select * from usuarios where email = %s'
+        resultado = cursor.execute(sql,(email,))
+        resultado = cursor.fetchone()
+        print(resultado)
+
+        if resultado:
+            if senha == resultado['senha']:
+                if resultado['tipo'] == 'cliente':
+                    return render_template('cliente.html',usuario = resultado)
+                elif resultado['tipo'] == 'admin':
+                    return render_template('Administrador.html',usuario = resultado)   
+            else:
+                print('Senha incorreta')
+
+        else:
+            print('Errou o email')
 
         return render_template('index.html',titulo=titulo)
     
